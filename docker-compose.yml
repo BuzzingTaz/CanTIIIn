@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+    mongodb:
+      image: mongo
+      container_name: mongodb
+      volumes:
+        - "./data:/data/db"
+      restart: always
+      environment:
+        - MONGO_INITDB_DATABASE=cantiiin
+    backend:
+      depends_on:
+        - mongodb
+      build: ./backend
+      restart: unless-stopped
+    frontend:
+      depends_on:
+        - backend
+      build:
+        context: ./frontend
+    nginx:
+      image: nginx:latest
+      container_name: webserver
+      depends_on:
+        - frontend
+        - backend
+      restart: unless-stopped
+      ports:
+        - 80:80
+        - 443:443
+      volumes:
+        - ./nginx/local.conf:/etc/nginx/nginx.conf
+
